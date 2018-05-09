@@ -6,6 +6,7 @@
 #include <immintrin.h>
 #include <omp.h>
 #include <time.h>
+#include "micro_kernel.h"
 
 #define GEMM_SIMD_ALIGN_SIZE 32
 #define SGEMM_MC 24
@@ -71,22 +72,6 @@ inline void packB_kcxnc_d(int n, int k, float *XB, int ldXB, int offsetb, float 
     }
   }
 }
-
-#if 1
-#include "micro_kernel.h"
-#else
-void micro_kernel(int kc, float* A, float* B, float* C, dim_t ldc, aux_t* aux) {
-  int nr = aux->n;
-  int mr = aux->m;
-  for (int kr=0; kr<kc; kr++) {
-    for (int j=0; j<nr; j++) {
-      for (int i=0; i<mr; i++) {
-        C[j*ldc+i] += A[i*kc+kr] * B[j*kc+kr];
-      }
-    }
-  }
-}
-#endif
 
 void macro_kernel(int mc, int nc, int kc, float *packA, float *packB, float *C, int ldc) {
   aux_t aux;
@@ -202,7 +187,7 @@ int main(int argc, char *argv[]) {
   for (int i=0; i<m; i++) {
     for (int j=0; j<n; j++) {
       if (fabs(C(i,j) - C_ref(i,j)) > 1) {
-        //printf( "C[ %d ][ %d ] != C_ref, %E, %E\n", i, j, C(i,j), C_ref(i,j));
+        printf( "C[ %d ][ %d ] != C_ref, %E, %E\n", i, j, C(i,j), C_ref(i,j));
         break;
       }
     }

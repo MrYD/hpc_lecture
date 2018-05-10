@@ -6,7 +6,6 @@
 #include <immintrin.h>
 #include <omp.h>
 #include <time.h>
-#include "micro_kernel.h"
 
 #define GEMM_SIMD_ALIGN_SIZE 32
 #define SGEMM_MC 24
@@ -73,6 +72,7 @@ inline void packB_kcxnc_d(int n, int k, float *XB, int ldXB, int offsetb, float 
   }
 }
 
+#include "micro_kernel.h"
 void macro_kernel(int mc, int nc, int kc, float *packA, float *packB, float *C, int ldc) {
   aux_t aux;
   aux.b_next = packB;
